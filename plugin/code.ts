@@ -277,7 +277,7 @@ const DEFAULT_COMPONENT_MAP: ComponentMap = {
   "Container/Section": ""
 };
 
-figma.showUI(__html__, { width: 400, height: 600 });
+figma.showUI(uiHtml, { width: 400, height: 600 });
 
 figma.ui.onmessage = async (msg: Message) => {
   try {

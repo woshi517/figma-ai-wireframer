@@ -50,7 +50,7 @@ export async function validateApiKey(req: Request, res: Response) {
       });
 
       if (userResponse.ok) {
-        const userData = await userResponse.json();
+        const userData = await userResponse.json() as any;
         return res.json({
           success: true,
           data: {
