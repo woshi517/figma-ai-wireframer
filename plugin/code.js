@@ -412,22 +412,24 @@
       document.querySelectorAll(".tab").forEach((tab) => {
         tab.classList.remove("active");
       });
-      document.querySelector("[onclick=\\"switchTab('" + tabName + "')\\"]")?.classList.add("active");
+      var tabButton = document.querySelector("[onclick=\\"switchTab('" + tabName + "')\\]");
+      if (tabButton) tabButton.classList.add("active");
       document.querySelectorAll(".tab-content").forEach((content) => {
         content.classList.remove("active");
       });
-      document.getElementById(tabName + "-tab")?.classList.add("active");
+      var tabContent = document.getElementById(tabName + "-tab");
+      if (tabContent) tabContent.classList.add("active");
     }
     function setLoading(loading) {
       isLoading = loading;
-      const loadingEl = document.getElementById("loading");
-      const generateBtn = document.getElementById("generate-btn");
+      var loadingEl = document.getElementById("loading");
+      var generateBtn = document.getElementById("generate-btn");
       if (loading) {
-        loadingEl?.classList.add("active");
+        if (loadingEl) loadingEl.classList.add("active");
         generateBtn.textContent = "Generating...";
         generateBtn.disabled = true;
       } else {
-        loadingEl?.classList.remove("active");
+        if (loadingEl) loadingEl.classList.remove("active");
         generateBtn.textContent = "Generate Wireframe";
         generateBtn.disabled = false;
       }
@@ -554,10 +556,10 @@
       }
       
       // Display models list with more details
-      modelsList.innerHTML = models.map(model => {
-        const description = model.description ? 
+      modelsList.innerHTML = models.map(function(model) {
+        var description = model.description ? 
           '<div class="model-description">' + model.description.substring(0, 100) + (model.description.length > 100 ? '...' : '') + '</div>' : '';
-        const contextInfo = model.contextLength ? 
+        var contextInfo = model.contextLength ? 
           '<div class="model-context">Context: ' + model.contextLength.toLocaleString() + ' tokens</div>' : '';
         
         return '<div class="model-item">' +
@@ -570,7 +572,9 @@
       
       // Update select options
       select.innerHTML = '<option value="">Select a model</option>' + 
-        models.map(model => '<option value="' + model.id + '">' + model.name + '</option>').join('');
+        models.map(function(model) { 
+          return '<option value="' + model.id + '">' + model.name + '</option>';
+        }).join('');
     }
     function showError(message) {
       const errorEl = document.getElementById("error");
@@ -641,7 +645,8 @@
           "Content-Type": "application/json"
         },
         body: JSON.stringify({
-          ...request,
+          prompt: request.prompt,
+          userId: request.userId,
           apiKey,
           model: defaultModel
         })
