@@ -1,1 +1,154 @@
-var figmaPlugin=(()=>{var i={"Button/Primary":"","Button/Secondary":"","Input/Default":"","Input/Password":"","Text/Heading":"","Text/Body":"","Container/Card":"","Container/Section":""};figma.showUI(__html__,{width:400,height:600});figma.ui.onmessage=async a=>{try{switch(a.type){case"generate":await m(a.data);break;case"render":await p(a.data);break;case"save-component-map":await y(a.data);break;case"get-component-map":await d();break;default:figma.notify("Unknown message type")}}catch(e){console.error("Plugin error:",e),figma.ui.postMessage({type:"error",data:e instanceof Error?e.message:"Unknown error"})}};async function m(a){figma.ui.postMessage({type:"loading",data:!0});try{let e=await fetch("https://your-deployed-backend.com/api/generate-wireframe",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify(a)});if(!e.ok)throw new Error(`HTTP error! status: ${e.status}`);let t=await e.json();if(t.success&&t.data)figma.ui.postMessage({type:"generate-complete",data:t.data});else throw new Error(t.error||"Failed to generate wireframe")}catch(e){throw new Error(`Generation failed: ${e instanceof Error?e.message:"Unknown error"}`)}finally{figma.ui.postMessage({type:"loading",data:!1})}}async function p(a){let e=figma.createFrame();e.name="AI Generated Wireframe",e.resize(a.width,a.height);let t=await s();for(let r of a.children)await c(e,r,t);figma.currentPage.appendChild(e),figma.currentPage.selection=[e],figma.viewport.scrollAndZoomIntoView([e]),figma.notify("Wireframe generated successfully!")}async function c(a,e,t){switch(e.type){case"text":await f(a,e);break;case"component":await g(a,e,t);break}}async function f(a,e){let t=figma.createText();await figma.loadFontAsync({family:"Inter",style:"Regular"}),t.characters=e.content||"",t.x=e.x,t.y=e.y,e.width&&t.resize(e.width,t.height),e.height&&t.resize(t.width,e.height),a.appendChild(t)}async function g(a,e,t){if(!e.componentName)throw new Error("Component name is required");let r=t[e.componentName];if(!r){let o=figma.createRectangle();o.name=`Missing: ${e.componentName}`,o.x=e.x,o.y=e.y,o.resize(e.width||100,e.height||40),o.fills=[{type:"SOLID",color:{r:.9,g:.9,b:.9}}],a.appendChild(o);return}try{let n=(await figma.importComponentByKeyAsync(r)).createInstance();n.x=e.x,n.y=e.y,e.width&&n.resize(e.width,n.height),e.height&&n.resize(n.width,e.height),a.appendChild(n)}catch{let n=figma.createRectangle();n.name=`Error: ${e.componentName}`,n.x=e.x,n.y=e.y,n.resize(e.width||100,e.height||40),n.fills=[{type:"SOLID",color:{r:1,g:.8,b:.8}}],a.appendChild(n)}}async function y(a){await figma.clientStorage.setAsync("componentMap",a),figma.notify("Component mapping saved!")}async function d(){let a=await s();figma.ui.postMessage({type:"component-map-loaded",data:a})}async function s(){return await figma.clientStorage.getAsync("componentMap")||i}})();
+"use strict";
+(() => {
+  // code.ts
+  var DEFAULT_COMPONENT_MAP = {
+    "Button/Primary": "",
+    "Button/Secondary": "",
+    "Input/Default": "",
+    "Input/Password": "",
+    "Text/Heading": "",
+    "Text/Body": "",
+    "Container/Card": "",
+    "Container/Section": ""
+  };
+  figma.showUI(__html__, { width: 400, height: 600 });
+  figma.ui.onmessage = async (msg) => {
+    try {
+      switch (msg.type) {
+        case "generate":
+          await handleGenerate(msg.data);
+          break;
+        case "render":
+          await handleRender(msg.data);
+          break;
+        case "save-component-map":
+          await handleSaveComponentMap(msg.data);
+          break;
+        case "get-component-map":
+          await handleGetComponentMap();
+          break;
+        default:
+          figma.notify("Unknown message type");
+      }
+    } catch (error) {
+      console.error("Plugin error:", error);
+      figma.ui.postMessage({
+        type: "error",
+        data: error instanceof Error ? error.message : "Unknown error"
+      });
+    }
+  };
+  async function handleGenerate(request) {
+    figma.ui.postMessage({ type: "loading", data: true });
+    try {
+      const response = await fetch("https://your-deployed-backend.com/api/generate-wireframe", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json"
+        },
+        body: JSON.stringify(request)
+      });
+      if (!response.ok) {
+        throw new Error(`HTTP error! status: ${response.status}`);
+      }
+      const result = await response.json();
+      if (result.success && result.data) {
+        figma.ui.postMessage({
+          type: "generate-complete",
+          data: result.data
+        });
+      } else {
+        throw new Error(result.error || "Failed to generate wireframe");
+      }
+    } catch (error) {
+      throw new Error(`Generation failed: ${error instanceof Error ? error.message : "Unknown error"}`);
+    } finally {
+      figma.ui.postMessage({ type: "loading", data: false });
+    }
+  }
+  async function handleRender(spec) {
+    const frame = figma.createFrame();
+    frame.name = "AI Generated Wireframe";
+    frame.resize(spec.width, spec.height ?? 800);
+    const componentMap = await getComponentMap();
+    for (const child of spec.children) {
+      await renderChild(frame, child, componentMap);
+    }
+    figma.currentPage.appendChild(frame);
+    figma.currentPage.selection = [frame];
+    figma.viewport.scrollAndZoomIntoView([frame]);
+    figma.notify("Wireframe generated successfully!");
+  }
+  async function renderChild(parent, child, componentMap) {
+    switch (child.type) {
+      case "text":
+        await renderText(parent, child);
+        break;
+      case "component":
+        await renderComponent(parent, child, componentMap);
+        break;
+    }
+  }
+  async function renderText(parent, child) {
+    const textNode = figma.createText();
+    await figma.loadFontAsync({ family: "Inter", style: "Regular" });
+    textNode.characters = child.content || "";
+    textNode.x = child.x;
+    textNode.y = child.y;
+    if (child.width)
+      textNode.resize(child.width, textNode.height);
+    if (child.height)
+      textNode.resize(textNode.width, child.height);
+    parent.appendChild(textNode);
+  }
+  async function renderComponent(parent, child, componentMap) {
+    if (!child.componentName) {
+      throw new Error("Component name is required");
+    }
+    const componentKey = componentMap[child.componentName];
+    if (!componentKey) {
+      const rect = figma.createRectangle();
+      rect.name = `Missing: ${child.componentName}`;
+      rect.x = child.x;
+      rect.y = child.y;
+      rect.resize(child.width || 100, child.height || 40);
+      rect.fills = [{ type: "SOLID", color: { r: 0.9, g: 0.9, b: 0.9 } }];
+      parent.appendChild(rect);
+      return;
+    }
+    try {
+      const component = await figma.importComponentByKeyAsync(componentKey);
+      const instance = component.createInstance();
+      instance.x = child.x;
+      instance.y = child.y;
+      if (child.width)
+        instance.resize(child.width, instance.height);
+      if (child.height)
+        instance.resize(instance.width, child.height);
+      parent.appendChild(instance);
+    } catch (error) {
+      const rect = figma.createRectangle();
+      rect.name = `Error: ${child.componentName}`;
+      rect.x = child.x;
+      rect.y = child.y;
+      rect.resize(child.width || 100, child.height || 40);
+      rect.fills = [{ type: "SOLID", color: { r: 1, g: 0.8, b: 0.8 } }];
+      parent.appendChild(rect);
+    }
+  }
+  async function handleSaveComponentMap(map) {
+    await figma.clientStorage.setAsync("componentMap", map);
+    figma.notify("Component mapping saved!");
+  }
+  async function handleGetComponentMap() {
+    const map = await getComponentMap();
+    figma.ui.postMessage({
+      type: "component-map-loaded",
+      data: map
+    });
+  }
+  async function getComponentMap() {
+    const saved = await figma.clientStorage.getAsync("componentMap");
+    return saved || DEFAULT_COMPONENT_MAP;
+  }
+})();

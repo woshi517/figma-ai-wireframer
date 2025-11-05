@@ -3,8 +3,9 @@
   "version": "1.0.0",
   "description": "Figma plugin for AI-powered wireframe generation",
   "scripts": {
-    "dev": "esbuild code.ts --bundle --outfile=code.js --global-name=figmaPlugin --target=es2020 --format=iife --sourcemap --watch",
-    "build": "esbuild code.ts --bundle --outfile=code.js --global-name=figmaPlugin --target=es2020 --format=iife --minify"
+    "dev": "esbuild code.ts --bundle --outfile=code.js --target=es2020 --sourcemap --watch",
+    "build": "esbuild code.ts --bundle --outfile=code.js --target=es2020",
+    "build-ui": "esbuild ui.ts --outfile=ui.js --target=es2020"
   },
   "devDependencies": {
     "@figma/plugin-typings": "^1.92.0",
