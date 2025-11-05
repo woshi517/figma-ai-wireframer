@@ -3,8 +3,8 @@
   "version": "1.0.0",
   "description": "Figma plugin for AI-powered wireframe generation",
   "scripts": {
-    "dev": "esbuild code.ts --bundle --outfile=code.js --target=es2020 --sourcemap --watch",
-    "build": "esbuild code.ts --bundle --outfile=code.js --target=es2020",
+    "dev": "esbuild code.ts --bundle --outfile=code.js --target=es2020 --sourcemap --watch --loader:.html=text",
+    "build": "esbuild code.ts --bundle --outfile=code.js --target=es2020 --loader:.html=text",
     "build-ui": "esbuild ui.ts --outfile=ui.js --target=es2020"
   },
   "devDependencies": {

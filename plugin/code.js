@@ -1,5 +1,266 @@
 "use strict";
 (() => {
+  // ui.html?raw
+  var ui_default = `<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>AI Wireframer</title>
+  <style>
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+      margin: 0;
+      padding: 16px;
+      background: #f8f9fa;
+      color: #1a1a1a;
+    }
+    
+    .container {
+      max-width: 100%;
+    }
+    
+    h1 {
+      font-size: 18px;
+      font-weight: 600;
+      margin: 0 0 16px 0;
+      color: #1a1a1a;
+    }
+    
+    .section {
+      background: white;
+      border-radius: 8px;
+      padding: 16px;
+      margin-bottom: 16px;
+      border: 1px solid #e1e4e8;
+    }
+    
+    .section-title {
+      font-size: 14px;
+      font-weight: 600;
+      margin: 0 0 12px 0;
+      color: #1a1a1a;
+    }
+    
+    textarea {
+      width: 100%;
+      min-height: 80px;
+      padding: 8px 12px;
+      border: 1px solid #d0d7de;
+      border-radius: 6px;
+      font-size: 14px;
+      font-family: inherit;
+      resize: vertical;
+      box-sizing: border-box;
+    }
+    
+    textarea:focus {
+      outline: none;
+      border-color: #0969da;
+      box-shadow: 0 0 0 3px rgba(9, 105, 218, 0.1);
+    }
+    
+    button {
+      background: #1f883d;
+      color: white;
+      border: none;
+      padding: 8px 16px;
+      border-radius: 6px;
+      font-size: 14px;
+      font-weight: 500;
+      cursor: pointer;
+      width: 100%;
+      margin-top: 12px;
+    }
+    
+    button:hover {
+      background: #1a7f37;
+    }
+    
+    button:disabled {
+      background: #94d3a2;
+      cursor: not-allowed;
+    }
+    
+    .loading {
+      display: none;
+      text-align: center;
+      padding: 16px;
+      color: #656d76;
+    }
+    
+    .loading.active {
+      display: block;
+    }
+    
+    .spinner {
+      border: 2px solid #e1e4e8;
+      border-top: 2px solid #0969da;
+      border-radius: 50%;
+      width: 20px;
+      height: 20px;
+      animation: spin 1s linear infinite;
+      margin: 0 auto 8px;
+    }
+    
+    @keyframes spin {
+      0% { transform: rotate(0deg); }
+      100% { transform: rotate(360deg); }
+    }
+    
+    .error {
+      background: #ffebe9;
+      border: 1px solid #fd8c73;
+      color: #cf222e;
+      padding: 12px;
+      border-radius: 6px;
+      font-size: 14px;
+      margin-top: 12px;
+      display: none;
+    }
+    
+    .error.active {
+      display: block;
+    }
+    
+    .component-mapping {
+      display: grid;
+      gap: 8px;
+    }
+    
+    .component-row {
+      display: grid;
+      grid-template-columns: 1fr 2fr;
+      gap: 8px;
+      align-items: center;
+    }
+    
+    .component-label {
+      font-size: 12px;
+      color: #656d76;
+    }
+    
+    .component-input {
+      padding: 4px 8px;
+      border: 1px solid #d0d7de;
+      border-radius: 4px;
+      font-size: 12px;
+      font-family: monospace;
+    }
+    
+    .component-input:focus {
+      outline: none;
+      border-color: #0969da;
+    }
+    
+    .tabs {
+      display: flex;
+      border-bottom: 1px solid #d0d7de;
+      margin-bottom: 16px;
+    }
+    
+    .tab {
+      padding: 8px 16px;
+      background: none;
+      border: none;
+      border-bottom: 2px solid transparent;
+      color: #656d76;
+      cursor: pointer;
+      font-size: 14px;
+      margin: 0;
+    }
+    
+    .tab.active {
+      color: #1a1a1a;
+      border-bottom-color: #fd8c73;
+    }
+    
+    .tab-content {
+      display: none;
+    }
+    
+    .tab-content.active {
+      display: block;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h1>AI Wireframer</h1>
+    
+    <div class="tabs">
+      <button class="tab active" onclick="switchTab('generate')">Generate</button>
+      <button class="tab" onclick="switchTab('settings')">Settings</button>
+    </div>
+    
+    <!-- Generate Tab -->
+    <div id="generate-tab" class="tab-content active">
+      <div class="section">
+        <div class="section-title">Describe your UI</div>
+        <textarea 
+          id="prompt" 
+          placeholder="e.g., 'a login screen with email, password, and a sign-in button'"
+        ></textarea>
+        <button id="generate-btn" onclick="generateWireframe()">
+          Generate Wireframe
+        </button>
+        
+        <div id="loading" class="loading">
+          <div class="spinner"></div>
+          <div>Generating wireframe...</div>
+        </div>
+        
+        <div id="error" class="error"></div>
+      </div>
+    </div>
+    
+    <!-- Settings Tab -->
+    <div id="settings-tab" class="tab-content">
+      <div class="section">
+        <div class="section-title">Component Mapping</div>
+        <div class="component-mapping">
+          <div class="component-row">
+            <span class="component-label">Button/Primary</span>
+            <input type="text" class="component-input" id="component-Button/Primary" placeholder="Component key">
+          </div>
+          <div class="component-row">
+            <span class="component-label">Button/Secondary</span>
+            <input type="text" class="component-input" id="component-Button/Secondary" placeholder="Component key">
+          </div>
+          <div class="component-row">
+            <span class="component-label">Input/Default</span>
+            <input type="text" class="component-input" id="component-Input/Default" placeholder="Component key">
+          </div>
+          <div class="component-row">
+            <span class="component-label">Input/Password</span>
+            <input type="text" class="component-input" id="component-Input/Password" placeholder="Component key">
+          </div>
+          <div class="component-row">
+            <span class="component-label">Text/Heading</span>
+            <input type="text" class="component-input" id="component-Text/Heading" placeholder="Component key">
+          </div>
+          <div class="component-row">
+            <span class="component-label">Text/Body</span>
+            <input type="text" class="component-input" id="component-Text/Body" placeholder="Component key">
+          </div>
+          <div class="component-row">
+            <span class="component-label">Container/Card</span>
+            <input type="text" class="component-input" id="component-Container/Card" placeholder="Component key">
+          </div>
+          <div class="component-row">
+            <span class="component-label">Container/Section</span>
+            <input type="text" class="component-input" id="component-Container/Section" placeholder="Component key">
+          </div>
+        </div>
+        <button onclick="saveComponentMapping()">Save Mapping</button>
+      </div>
+    </div>
+  </div>
+
+  <script src="ui.js"><\/script>
+</body>
+</html>`;
+
   // code.ts
   var DEFAULT_COMPONENT_MAP = {
     "Button/Primary": "",
@@ -11,7 +272,7 @@
     "Container/Card": "",
     "Container/Section": ""
   };
-  figma.showUI(__html__, { width: 400, height: 600 });
+  figma.showUI(ui_default, { width: 400, height: 600 });
   figma.ui.onmessage = async (msg) => {
     try {
       switch (msg.type) {
