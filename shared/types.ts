@@ -1,0 +1,38 @@
+export interface WireframeChild {
+  type: "text" | "component" | "container";
+  content?: string;
+  componentName?: string;
+  width?: number | "stretch" | "hug";
+  height?: number | "stretch" | "hug";
+  layoutAlign?: "stretch" | "center" | "min" | "max";
+  layoutGrow?: number;
+  layoutMode?: "vertical" | "horizontal";
+  itemSpacing?: number;
+  padding?: number | { top?: number; right?: number; bottom?: number; left?: number };
+  children?: WireframeChild[];
+}
+
+export interface WireframeSpec {
+  type: "frame";
+  width: number;
+  height?: number;
+  layoutMode?: "vertical" | "horizontal";
+  itemSpacing?: number;
+  padding?: number | { top?: number; right?: number; bottom?: number; left?: number };
+  children: WireframeChild[];
+}
+
+export interface ComponentMap {
+  [componentName: string]: string; // Maps component names to Figma component keys
+}
+
+export interface GenerateRequest {
+  prompt: string;
+  userId?: string;
+}
+
+export interface GenerateResponse {
+  success: boolean;
+  data?: WireframeSpec;
+  error?: string;
+}

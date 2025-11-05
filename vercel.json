@@ -1,0 +1,24 @@
+{
+  "version": 2,
+  "builds": [
+    {
+      "src": "server/server.ts",
+      "use": "@vercel/node"
+    }
+  ],
+  "routes": [
+    {
+      "src": "/api/(.*)",
+      "dest": "server/server.ts"
+    },
+    {
+      "src": "/health",
+      "dest": "server/server.ts"
+    }
+  ],
+  "env": {
+    "OPENROUTER_API_KEY": "@openrouter-api-key",
+    "OPENROUTER_MODEL": "anthropic/claude-3.5-sonnet",
+    "SITE_URL": "https://your-domain.com"
+  }
+}

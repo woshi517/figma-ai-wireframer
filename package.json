@@ -1,0 +1,21 @@
+{
+  "name": "figma-ai-wireframer",
+  "version": "1.0.0",
+  "description": "Figma plugin for AI-powered wireframe generation",
+  "private": true,
+  "workspaces": [
+    "plugin",
+    "server"
+  ],
+  "scripts": {
+    "dev:plugin": "cd plugin && npm run dev",
+    "dev:server": "cd server && npm run dev",
+    "build:plugin": "cd plugin && npm run build",
+    "build:server": "cd server && npm run build",
+    "build": "npm run build:plugin && npm run build:server"
+  },
+  "devDependencies": {
+    "@types/node": "^20.0.0",
+    "typescript": "^5.0.0"
+  }
+}
