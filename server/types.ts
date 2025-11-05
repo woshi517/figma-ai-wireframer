@@ -1,6 +1,6 @@
-import { WireframeSpec, WireframeChild, GenerateRequest, GenerateResponse, ComponentMap } from '../shared/types.js';
+import { WireframeSpec, WireframeChild, GenerateRequest, GenerateResponse, Settings, Model } from '../shared/types.js';
 
-export { WireframeSpec, WireframeChild, GenerateRequest, GenerateResponse, ComponentMap };
+export { WireframeSpec, WireframeChild, GenerateRequest, GenerateResponse, Settings, Model };
 
 export interface OpenRouterMessage {
   role: 'system' | 'user' | 'assistant';

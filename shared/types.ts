@@ -24,8 +24,14 @@ export interface WireframeSpec {
   children: WireframeChild[];
 }
 
-export interface ComponentMap {
-  [componentName: string]: string; // Maps component names to Figma component keys
+export interface Settings {
+  apiKey: string;
+  defaultModel: string;
+}
+
+export interface Model {
+  id: string;
+  name: string;
 }
 
 export interface GenerateRequest {

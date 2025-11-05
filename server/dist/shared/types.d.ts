@@ -2,6 +2,8 @@ export interface WireframeChild {
     type: "text" | "component" | "container";
     content?: string;
     componentName?: string;
+    x?: number;
+    y?: number;
     width?: number | "stretch" | "hug";
     height?: number | "stretch" | "hug";
     layoutAlign?: "stretch" | "center" | "min" | "max";
@@ -30,8 +32,13 @@ export interface WireframeSpec {
     };
     children: WireframeChild[];
 }
-export interface ComponentMap {
-    [componentName: string]: string;
+export interface Settings {
+    apiKey: string;
+    defaultModel: string;
+}
+export interface Model {
+    id: string;
+    name: string;
 }
 export interface GenerateRequest {
     prompt: string;

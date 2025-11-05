@@ -123,6 +123,132 @@
       display: block;
     }
     
+    /* Settings Styles */
+    .form-group {
+      margin-bottom: 20px;
+    }
+    
+    .form-group label {
+      display: block;
+      margin-bottom: 6px;
+      font-weight: 500;
+      color: #24292f;
+    }
+    
+    .api-help {
+      font-size: 12px;
+      color: #656d76;
+      margin-bottom: 8px;
+    }
+    
+    .api-help a {
+      color: #0969da;
+      text-decoration: none;
+    }
+    
+    .api-help a:hover {
+      text-decoration: underline;
+    }
+    
+    .api-key-group {
+      display: flex;
+      gap: 8px;
+    }
+    
+    .api-key-group input {
+      flex: 1;
+    }
+    
+    .api-key-group button {
+      margin: 0;
+      width: auto;
+      white-space: nowrap;
+    }
+    
+    .key-status {
+      margin-top: 6px;
+      font-size: 12px;
+      padding: 4px 8px;
+      border-radius: 4px;
+    }
+    
+    .key-status.valid {
+      background: #dcffe4;
+      color: #1a7f37;
+    }
+    
+    .key-status.invalid {
+      background: #ffebe9;
+      color: #cf222e;
+    }
+    
+    .key-status.validating {
+      background: #fff8c5;
+      color: #d4a017;
+    }
+    
+    .models-list {
+      max-height: 200px;
+      overflow-y: auto;
+      border: 1px solid #d0d7de;
+      border-radius: 6px;
+      padding: 8px;
+    }
+    
+    .model-item {
+      padding: 8px;
+      border-bottom: 1px solid #f6f8fa;
+    }
+    
+    .model-item:last-child {
+      border-bottom: none;
+    }
+    
+    .model-name {
+      font-weight: 500;
+      color: #24292f;
+    }
+    
+    .model-id {
+      font-size: 12px;
+      color: #656d76;
+      margin-top: 2px;
+    }
+    
+    .model-description {
+      font-size: 11px;
+      color: #6b7280;
+      margin-top: 4px;
+      line-height: 1.3;
+    }
+    
+    .model-context {
+      font-size: 10px;
+      color: #9ca3af;
+      margin-top: 2px;
+    }
+    
+    .no-models {
+      text-align: center;
+      color: #656d76;
+      padding: 16px;
+    }
+    
+    select {
+      width: 100%;
+      padding: 8px 12px;
+      border: 1px solid #d0d7de;
+      border-radius: 6px;
+      background: white;
+      font-size: 14px;
+    }
+    
+    select:focus {
+      outline: none;
+      border-color: #0969da;
+      box-shadow: 0 0 0 3px rgba(9, 105, 218, 0.1);
+    }
+    
     .component-mapping {
       display: grid;
       gap: 8px;
@@ -217,42 +343,32 @@
     <!-- Settings Tab -->
     <div id="settings-tab" class="tab-content">
       <div class="section">
-        <div class="section-title">Component Mapping</div>
-        <div class="component-mapping">
-          <div class="component-row">
-            <span class="component-label">Button/Primary</span>
-            <input type="text" class="component-input" id="component-Button/Primary" placeholder="Component key">
+        <div class="section-title">OpenRouter Configuration</div>
+        <div class="form-group">
+          <label for="apiKey">API Key</label>
+          <div class="api-help">
+            Get your API key from <a href="https://openrouter.ai/keys" target="_blank">OpenRouter.ai/keys</a>
           </div>
-          <div class="component-row">
-            <span class="component-label">Button/Secondary</span>
-            <input type="text" class="component-input" id="component-Button/Secondary" placeholder="Component key">
+          <div class="api-key-group">
+            <input type="password" id="apiKey" placeholder="sk-or-v1-...">
+            <button id="saveKey" class="btn btn-primary" onclick="saveApiKey()">Save Key</button>
           </div>
-          <div class="component-row">
-            <span class="component-label">Input/Default</span>
-            <input type="text" class="component-input" id="component-Input/Default" placeholder="Component key">
-          </div>
-          <div class="component-row">
-            <span class="component-label">Input/Password</span>
-            <input type="text" class="component-input" id="component-Input/Password" placeholder="Component key">
-          </div>
-          <div class="component-row">
-            <span class="component-label">Text/Heading</span>
-            <input type="text" class="component-input" id="component-Text/Heading" placeholder="Component key">
-          </div>
-          <div class="component-row">
-            <span class="component-label">Text/Body</span>
-            <input type="text" class="component-input" id="component-Text/Body" placeholder="Component key">
-          </div>
-          <div class="component-row">
-            <span class="component-label">Container/Card</span>
-            <input type="text" class="component-input" id="component-Container/Card" placeholder="Component key">
-          </div>
-          <div class="component-row">
-            <span class="component-label">Container/Section</span>
-            <input type="text" class="component-input" id="component-Container/Section" placeholder="Component key">
+          <div id="keyStatus" class="key-status"></div>
+        </div>
+        
+        <div class="form-group">
+          <label>Available Models</label>
+          <div id="modelsList" class="models-list">
+            <div class="loading">Loading models...</div>
           </div>
         </div>
-        <button onclick="saveComponentMapping()">Save Mapping</button>
+        
+        <div class="form-group">
+          <label for="defaultModel">Default Model</label>
+        <select id="defaultModel" onchange="saveDefaultModel()">
+          <option value="">Select a model</option>
+        </select>
+        </div>
       </div>
     </div>
   </div>
@@ -272,8 +388,20 @@
         case "generate-complete":
           handleGenerateComplete(msg.data);
           break;
-        case "component-map-loaded":
-          loadComponentMapping(msg.data);
+        case "settings-loaded":
+          loadSettings(msg.data);
+          break;
+        case "api-key-saved":
+          updateKeyStatus(msg.data);
+          // Re-enable save button
+          const saveBtn = document.getElementById("saveKey");
+          if (saveBtn) {
+            saveBtn.disabled = false;
+            saveBtn.textContent = "Save Key";
+          }
+          break;
+        case "models-loaded":
+          displayModels(msg.data);
           break;
         case "error":
           showError(msg.data);
@@ -328,27 +456,121 @@
         }
       }, "*");
     }
-    function loadComponentMapping(componentMap) {
-      Object.keys(componentMap).forEach((componentName) => {
-        const input = document.getElementById("component-" + componentName);
-        if (input) {
-          input.value = componentMap[componentName] || "";
+    function loadSettings(settings) {
+      const apiKeyInput = document.getElementById("apiKey");
+      if (apiKeyInput && settings.apiKey) {
+        apiKeyInput.value = settings.apiKey;
+        updateKeyStatus(true);
+      }
+      
+      if (settings.defaultModel) {
+        const select = document.getElementById("defaultModel");
+        if (select) {
+          select.value = settings.defaultModel;
         }
-      });
+      }
+      
+      // Load models if API key is present
+      if (settings.apiKey) {
+        loadModels();
+      }
     }
-    function saveComponentMapping() {
-      const componentMap = {};
-      document.querySelectorAll(".component-input").forEach((input) => {
-        const element = input;
-        const componentName = element.id.replace("component-", "");
-        componentMap[componentName] = element.value.trim();
-      });
+    
+    function saveApiKey() {
+      const apiKey = document.getElementById("apiKey").value.trim();
+      if (!apiKey) {
+        showError("API key cannot be empty");
+        return;
+      }
+      
+      // Show validating status
+      updateKeyStatus(null);
+      
+      // Disable save button during validation
+      const saveBtn = document.getElementById("saveKey");
+      if (saveBtn) {
+        saveBtn.disabled = true;
+        saveBtn.textContent = "Validating...";
+      }
+      
       parent.postMessage({
         pluginMessage: {
-          type: "save-component-map",
-          data: componentMap
+          type: "save-api-key",
+          data: apiKey
         }
       }, "*");
+    }
+    
+    function loadModels() {
+      const modelsList = document.getElementById("modelsList");
+      if (modelsList) {
+        modelsList.innerHTML = '<div class="loading">Loading models...</div>';
+      }
+      
+      parent.postMessage({
+        pluginMessage: {
+          type: "load-models"
+        }
+      }, "*");
+    }
+    
+    function saveDefaultModel() {
+      const select = document.getElementById("defaultModel");
+      const modelId = select ? select.value : "";
+      
+      parent.postMessage({
+        pluginMessage: {
+          type: "save-default-model",
+          data: modelId
+        }
+      }, "*");
+    }
+    
+    function updateKeyStatus(isValid) {
+      const statusEl = document.getElementById("keyStatus");
+      if (statusEl) {
+        if (isValid === true) {
+          statusEl.textContent = "\u2713 API key validated and saved";
+          statusEl.className = "key-status valid";
+        } else if (isValid === false) {
+          statusEl.textContent = "\u2717 Invalid API key";
+          statusEl.className = "key-status invalid";
+        } else {
+          statusEl.textContent = "Validating...";
+          statusEl.className = "key-status validating";
+        }
+      }
+    }
+    
+    function displayModels(models) {
+      const modelsList = document.getElementById("modelsList");
+      const select = document.getElementById("defaultModel");
+      
+      if (!modelsList || !select) return;
+      
+      if (models.length === 0) {
+        modelsList.innerHTML = '<div class="no-models">No models available. Please check your API key.</div>';
+        return;
+      }
+      
+      // Display models list with more details
+      modelsList.innerHTML = models.map(model => {
+        const description = model.description ? 
+          '<div class="model-description">' + model.description.substring(0, 100) + (model.description.length > 100 ? '...' : '') + '</div>' : '';
+        const contextInfo = model.contextLength ? 
+          '<div class="model-context">Context: ' + model.contextLength.toLocaleString() + ' tokens</div>' : '';
+        
+        return '<div class="model-item">' +
+          '<div class="model-name">' + model.name + '</div>' +
+          '<div class="model-id">' + model.id + '</div>' +
+          description +
+          contextInfo +
+          '</div>';
+      }).join('');
+      
+      // Update select options
+      select.innerHTML = '<option value="">Select a model</option>' + 
+        models.map(model => '<option value="' + model.id + '">' + model.name + '</option>').join('');
     }
     function showError(message) {
       const errorEl = document.getElementById("error");
@@ -363,19 +585,12 @@
         errorEl.classList.remove("active");
       }
     }
+    
+    // Initialize settings on load
+    loadSettings({});
   <\/script>
 </body>
 </html>`;
-  var DEFAULT_COMPONENT_MAP = {
-    "Button/Primary": "",
-    "Button/Secondary": "",
-    "Input/Default": "",
-    "Input/Password": "",
-    "Text/Heading": "",
-    "Text/Body": "",
-    "Container/Card": "",
-    "Container/Section": ""
-  };
   figma.showUI(uiHtml, { width: 400, height: 600 });
   figma.ui.onmessage = async (msg) => {
     try {
@@ -386,11 +601,17 @@
         case "render":
           await handleRender(msg.data);
           break;
-        case "save-component-map":
-          await handleSaveComponentMap(msg.data);
+        case "save-api-key":
+          await handleSaveApiKey(msg.data);
           break;
-        case "get-component-map":
-          await handleGetComponentMap();
+        case "get-settings":
+          await handleGetSettings();
+          break;
+        case "load-models":
+          await handleLoadModels();
+          break;
+        case "save-default-model":
+          await handleSaveDefaultModel(msg.data);
           break;
         default:
           figma.notify("Unknown message type");
@@ -406,12 +627,24 @@
   async function handleGenerate(request) {
     figma.ui.postMessage({ type: "loading", data: true });
     try {
-      const response = await fetch("https://your-deployed-backend.com/api/generate-wireframe", {
+      const apiKey = await figma.clientStorage.getAsync("apiKey");
+      const defaultModel = await figma.clientStorage.getAsync("defaultModel");
+      if (!apiKey) {
+        throw new Error("Please configure your OpenRouter API key in Settings");
+      }
+      if (!defaultModel) {
+        throw new Error("Please select a default model in Settings");
+      }
+      const response = await fetch("http://localhost:3001/api/generate-with-key", {
         method: "POST",
         headers: {
           "Content-Type": "application/json"
         },
-        body: JSON.stringify(request)
+        body: JSON.stringify({
+          ...request,
+          apiKey,
+          model: defaultModel
+        })
       });
       if (!response.ok) {
         throw new Error(`HTTP error! status: ${response.status}`);
@@ -435,22 +668,21 @@
     const frame = figma.createFrame();
     frame.name = "AI Generated Wireframe";
     frame.resize(spec.width, spec.height || 800);
-    const componentMap = await getComponentMap();
     for (const child of spec.children) {
-      await renderChild(frame, child, componentMap);
+      await renderChild(frame, child);
     }
     figma.currentPage.appendChild(frame);
     figma.currentPage.selection = [frame];
     figma.viewport.scrollAndZoomIntoView([frame]);
     figma.notify("Wireframe generated successfully!");
   }
-  async function renderChild(parent, child, componentMap) {
+  async function renderChild(parent, child) {
     switch (child.type) {
       case "text":
         await renderText(parent, child);
         break;
       case "component":
-        await renderComponent(parent, child, componentMap);
+        await renderComponent(parent, child);
         break;
     }
   }
@@ -466,54 +698,247 @@
       textNode.resize(textNode.width, child.height);
     parent.appendChild(textNode);
   }
-  async function renderComponent(parent, child, componentMap) {
+  async function renderComponent(parent, child) {
     if (!child.componentName) {
       throw new Error("Component name is required");
     }
-    const componentKey = componentMap[child.componentName];
-    if (!componentKey) {
-      const rect = figma.createRectangle();
-      rect.name = `Missing: ${child.componentName}`;
-      rect.x = child.x;
-      rect.y = child.y;
-      rect.resize(child.width || 100, child.height || 40);
-      rect.fills = [{ type: "SOLID", color: { r: 0.9, g: 0.9, b: 0.9 } }];
-      parent.appendChild(rect);
+    const node = await createAutoComponent(child.componentName, child);
+    if (node) {
+      parent.appendChild(node);
+    }
+  }
+  async function createAutoComponent(componentName, child) {
+    await figma.loadFontAsync({ family: "Inter", style: "Regular" });
+    switch (componentName) {
+      case "Button/Primary":
+        return createButton(child, "#3B82F6", "#FFFFFF");
+      case "Button/Secondary":
+        return createButton(child, "#F3F4F6", "#1F2937");
+      case "Input/Default":
+      case "Input/Password":
+        return createInput(child, false);
+      case "Text/Heading":
+        return createTextElement(child, 24, "Bold");
+      case "Text/Body":
+        return createTextElement(child, 14, "Regular");
+      case "Container/Card":
+        return createContainer(child, 16, "#FFFFFF");
+      case "Container/Section":
+        return createContainer(child, 0, "#F9FAFB");
+      default:
+        const rect = figma.createRectangle();
+        rect.name = componentName;
+        rect.x = child.x;
+        rect.y = child.y;
+        rect.resize(child.width || 200, child.height || 40);
+        rect.fills = [{ type: "SOLID", color: { r: 0.9, g: 0.9, b: 0.9 } }];
+        rect.cornerRadius = 4;
+        return rect;
+    }
+  }
+  async function createButton(child, bgColor, textColor) {
+    const frame = figma.createFrame();
+    frame.name = "Button";
+    frame.x = child.x;
+    frame.y = child.y;
+    frame.resize(child.width || 120, child.height || 40);
+    frame.fills = [{ type: "SOLID", color: hexToFigmaColor(bgColor) }];
+    frame.cornerRadius = 6;
+    const text = figma.createText();
+    text.characters = child.content || "Button";
+    text.fontSize = 14;
+    text.fills = [{ type: "SOLID", color: hexToFigmaColor(textColor) }];
+    text.x = (frame.width - text.width) / 2;
+    text.y = (frame.height - text.height) / 2;
+    frame.appendChild(text);
+    return frame;
+  }
+  async function createInput(child, isPassword) {
+    const frame = figma.createFrame();
+    frame.name = isPassword ? "Password Input" : "Text Input";
+    frame.x = child.x;
+    frame.y = child.y;
+    frame.resize(child.width || 200, child.height || 40);
+    frame.fills = [{ type: "SOLID", color: hexToFigmaColor("#FFFFFF") }];
+    frame.strokes = [{ type: "SOLID", color: hexToFigmaColor("#D1D5DB") }];
+    frame.strokeWeight = 1;
+    frame.cornerRadius = 4;
+    const text = figma.createText();
+    text.characters = child.content || (isPassword ? "\u2022\u2022\u2022\u2022\u2022\u2022\u2022\u2022" : "Enter text...");
+    text.fontSize = 14;
+    text.fills = [{ type: "SOLID", color: hexToFigmaColor("#6B7280") }];
+    text.x = 12;
+    text.y = (frame.height - text.height) / 2;
+    frame.appendChild(text);
+    return frame;
+  }
+  async function createTextElement(child, fontSize, fontWeight) {
+    const text = figma.createText();
+    text.name = "Text";
+    text.characters = child.content || "Text";
+    text.fontSize = fontSize;
+    text.fontName = { family: "Inter", style: fontWeight };
+    text.fills = [{ type: "SOLID", color: hexToFigmaColor("#1F2937") }];
+    text.x = child.x;
+    text.y = child.y;
+    if (child.width)
+      text.resize(child.width, text.height);
+    if (child.height)
+      text.resize(text.width, child.height);
+    return text;
+  }
+  async function createContainer(child, padding, bgColor) {
+    const frame = figma.createFrame();
+    frame.name = "Container";
+    frame.x = child.x;
+    frame.y = child.y;
+    frame.resize(child.width || 300, child.height || 200);
+    frame.fills = [{ type: "SOLID", color: hexToFigmaColor(bgColor) }];
+    frame.cornerRadius = 8;
+    if (padding > 0) {
+      frame.paddingTop = padding;
+      frame.paddingRight = padding;
+      frame.paddingBottom = padding;
+      frame.paddingLeft = padding;
+    }
+    return frame;
+  }
+  function hexToFigmaColor(hex) {
+    const result = /^#?([a-f\d]{2})([a-f\d]{2})([a-f\d]{2})$/i.exec(hex);
+    return result ? {
+      r: parseInt(result[1], 16) / 255,
+      g: parseInt(result[2], 16) / 255,
+      b: parseInt(result[3], 16) / 255
+    } : { r: 0, g: 0, b: 0 };
+  }
+  async function handleSaveApiKey(apiKey) {
+    try {
+      const validationResponse = await fetch("https://openrouter.ai/api/v1/auth/key", {
+        method: "GET",
+        headers: {
+          "Authorization": `Bearer ${apiKey}`,
+          "Content-Type": "application/json"
+        }
+      });
+      if (!validationResponse.ok) {
+        let errorMessage = "Invalid API key";
+        if (validationResponse.status === 401) {
+          errorMessage = "Invalid API key. Please check your OpenRouter API key.";
+        } else if (validationResponse.status === 403) {
+          errorMessage = "API key does not have required permissions.";
+        }
+        figma.ui.postMessage({ type: "api-key-saved", data: false });
+        figma.ui.postMessage({ type: "error", data: errorMessage });
+        return;
+      }
+      const userData = await validationResponse.json();
+      console.log("API key validated for user:", userData);
+      await figma.clientStorage.setAsync("apiKey", apiKey);
+      figma.ui.postMessage({ type: "api-key-saved", data: true });
+      figma.notify("API key validated and saved!");
+      await handleLoadModels();
+    } catch (error) {
+      console.error("API key validation failed:", error);
+      figma.ui.postMessage({ type: "api-key-saved", data: false });
+      let errorMessage = "Failed to validate API key";
+      if (error instanceof Error) {
+        if (error.message.includes("fetch")) {
+          errorMessage = "Network error. Please check your internet connection.";
+        } else {
+          errorMessage = error.message;
+        }
+      }
+      figma.ui.postMessage({ type: "error", data: errorMessage });
+    }
+  }
+  async function handleGetSettings() {
+    const apiKey = await figma.clientStorage.getAsync("apiKey") || "";
+    const defaultModel = await figma.clientStorage.getAsync("defaultModel") || "";
+    figma.ui.postMessage({
+      type: "settings-loaded",
+      data: { apiKey, defaultModel }
+    });
+  }
+  async function handleLoadModels() {
+    const apiKey = await figma.clientStorage.getAsync("apiKey");
+    if (!apiKey) {
+      figma.ui.postMessage({ type: "models-loaded", data: [] });
       return;
     }
     try {
-      const component = await figma.importComponentByKeyAsync(componentKey);
-      const instance = component.createInstance();
-      instance.x = child.x;
-      instance.y = child.y;
-      if (child.width)
-        instance.resize(child.width, instance.height);
-      if (child.height)
-        instance.resize(instance.width, child.height);
-      parent.appendChild(instance);
+      const validationResponse = await fetch("https://openrouter.ai/api/v1/auth/key", {
+        method: "GET",
+        headers: {
+          "Authorization": `Bearer ${apiKey}`,
+          "Content-Type": "application/json"
+        }
+      });
+      if (!validationResponse.ok) {
+        if (validationResponse.status === 401) {
+          throw new Error("Invalid API key");
+        } else if (validationResponse.status === 403) {
+          throw new Error("API key does not have required permissions");
+        }
+        throw new Error("API key validation failed");
+      }
+      const modelsResponse = await fetch("https://openrouter.ai/api/v1/models", {
+        method: "GET",
+        headers: {
+          "Authorization": `Bearer ${apiKey}`,
+          "Content-Type": "application/json",
+          "HTTP-Referer": "https://figma-ai-wireframer.com",
+          "X-Title": "Figma Wireframe Agent"
+        }
+      });
+      if (!modelsResponse.ok) {
+        throw new Error(`Failed to load models: ${modelsResponse.statusText}`);
+      }
+      const data = await modelsResponse.json();
+      if (!data.data || !Array.isArray(data.data)) {
+        throw new Error("Invalid response from OpenRouter models API");
+      }
+      const models = data.data.filter((model) => {
+        return model.id && model.name && // Exclude vision, image, and specialized models
+        !model.id.includes("vision") && !model.id.includes("image") && !model.id.includes("dall-e") && !model.id.includes("stable-diffusion") && !model.id.includes("midjourney") && // Include models that support chat completions
+        (model.id.includes("chat") || model.id.includes("gpt") || model.id.includes("claude") || model.id.includes("llama") || model.id.includes("mistral") || model.id.includes("gemini"));
+      }).map((model) => ({
+        id: model.id,
+        name: model.name || model.id,
+        description: model.description || "",
+        pricing: model.pricing || {},
+        contextLength: model.context_length || 4096
+      })).sort((a, b) => {
+        const priority = ["claude-3.5-sonnet", "gpt-4", "gpt-4-turbo", "gemini-pro"];
+        const aPriority = priority.findIndex((p) => a.id.includes(p));
+        const bPriority = priority.findIndex((p) => b.id.includes(p));
+        if (aPriority !== -1 && bPriority !== -1)
+          return aPriority - bPriority;
+        if (aPriority !== -1)
+          return -1;
+        if (bPriority !== -1)
+          return 1;
+        return a.name.localeCompare(b.name);
+      });
+      figma.ui.postMessage({ type: "models-loaded", data: models });
+      figma.notify(`Loaded ${models.length} models successfully`);
     } catch (error) {
-      const rect = figma.createRectangle();
-      rect.name = `Error: ${child.componentName}`;
-      rect.x = child.x;
-      rect.y = child.y;
-      rect.resize(child.width || 100, child.height || 40);
-      rect.fills = [{ type: "SOLID", color: { r: 1, g: 0.8, b: 0.8 } }];
-      parent.appendChild(rect);
+      console.error("Failed to load models:", error);
+      figma.ui.postMessage({ type: "models-loaded", data: [] });
+      let errorMessage = "Failed to load models";
+      if (error instanceof Error) {
+        if (error.message.includes("Invalid API key")) {
+          errorMessage = "Invalid API key. Please check your OpenRouter API key.";
+        } else if (error.message.includes("permissions")) {
+          errorMessage = "API key lacks required permissions.";
+        } else {
+          errorMessage = error.message;
+        }
+      }
+      figma.ui.postMessage({ type: "error", data: errorMessage });
     }
   }
-  async function handleSaveComponentMap(map) {
-    await figma.clientStorage.setAsync("componentMap", map);
-    figma.notify("Component mapping saved!");
-  }
-  async function handleGetComponentMap() {
-    const map = await getComponentMap();
-    figma.ui.postMessage({
-      type: "component-map-loaded",
-      data: map
-    });
-  }
-  async function getComponentMap() {
-    const saved = await figma.clientStorage.getAsync("componentMap");
-    return saved || DEFAULT_COMPONENT_MAP;
+  async function handleSaveDefaultModel(modelId) {
+    await figma.clientStorage.setAsync("defaultModel", modelId);
+    figma.notify("Default model saved!");
   }
 })();

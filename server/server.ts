@@ -2,6 +2,9 @@ import express from 'express';
 import cors from 'cors';
 import dotenv from 'dotenv';
 import { generateWireframe } from './routes/generate.js';
+import { generateWithKey } from './routes/generate-with-key.js';
+import { validateApiKey } from './routes/validate-key.js';
+import { getModels } from './routes/models.js';
 
 dotenv.config();
 
@@ -19,6 +22,9 @@ app.get('/health', (req, res) => {
 
 // Routes
 app.post('/api/generate-wireframe', generateWireframe);
+app.post('/api/generate-with-key', generateWithKey);
+app.post('/api/validate-key', validateApiKey);
+app.get('/api/models', getModels);
 
 // Error handling middleware
 app.use((err: any, req: express.Request, res: express.Response, next: express.NextFunction) => {
