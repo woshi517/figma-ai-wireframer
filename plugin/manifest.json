@@ -6,6 +6,6 @@
   "ui": "ui.html",
   "editorType": ["figma"],
   "networkAccess": {
-    "allowedDomains": ["https://your-deployed-backend.com"]
+    "allowedDomains": ["https://openrouter.ai"]
   }
 }

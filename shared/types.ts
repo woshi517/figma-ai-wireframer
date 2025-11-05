@@ -2,6 +2,8 @@ export interface WireframeChild {
   type: "text" | "component" | "container";
   content?: string;
   componentName?: string;
+  x?: number;
+  y?: number;
   width?: number | "stretch" | "hug";
   height?: number | "stretch" | "hug";
   layoutAlign?: "stretch" | "center" | "min" | "max";

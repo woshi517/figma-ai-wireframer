@@ -1,0 +1,12 @@
+# Dependencies
+node_modules/
+plugin/node_modules/
+server/node_modules/
+
+# Build artifacts  
+plugin/code.js
+plugin/code.js.map
+server/dist/
+
+# Environment files
+server/.env
