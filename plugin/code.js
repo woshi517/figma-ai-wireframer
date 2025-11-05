@@ -69,7 +69,7 @@
   async function handleRender(spec) {
     const frame = figma.createFrame();
     frame.name = "AI Generated Wireframe";
-    frame.resize(spec.width, spec.height ?? 800);
+    frame.resize(spec.width, spec.height || 800);
     const componentMap = await getComponentMap();
     for (const child of spec.children) {
       await renderChild(frame, child, componentMap);
